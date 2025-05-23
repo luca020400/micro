@@ -1091,17 +1091,19 @@ func (h *BufPane) FindLiteral() bool {
 // it affects the buffer's LastSearch and LastSearchRegex (saved searches)
 // for use with FindNext and FindPrevious, and turns HighlightSearch on or off
 // according to hlsearch setting
-func (h *BufPane) Search(str string, useRegex bool, searchDown bool) error {
+func (h *BufPane) Search(str string, useRegex bool, searchDown bool, moveCursor bool) error {
 	match, found, err := h.Buf.FindNext(str, h.Buf.Start(), h.Buf.End(), h.Cursor.Loc, searchDown, useRegex)
 	if err != nil {
 		return err
 	}
 	if found {
-		h.Cursor.SetSelectionStart(match[0])
-		h.Cursor.SetSelectionEnd(match[1])
-		h.Cursor.OrigSelection[0] = h.Cursor.CurSelection[0]
-		h.Cursor.OrigSelection[1] = h.Cursor.CurSelection[1]
-		h.GotoLoc(h.Cursor.CurSelection[1])
+		if moveCursor {
+			h.Cursor.OrigSelection[0] = h.Cursor.CurSelection[0]
+			h.Cursor.OrigSelection[1] = h.Cursor.CurSelection[1]
+			h.Cursor.SetSelectionStart(match[0])
+			h.Cursor.SetSelectionEnd(match[1])
+			h.GotoLoc(h.Cursor.CurSelection[1])
+		}
 		h.Buf.LastSearch = str
 		h.Buf.LastSearchRegex = useRegex
 		h.Buf.HighlightSearch = h.Buf.Settings["hlsearch"].(bool)

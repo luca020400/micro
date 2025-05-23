@@ -26,12 +26,11 @@ func NewTabList(bufs []*buffer.Buffer) *TabList {
 	iOffset := config.GetInfoBarOffset()
 	tl := new(TabList)
 	tl.List = make([]*Tab, len(bufs))
+	tl.List[0] = NewTabFromBuffer(0, 0, w, h-iOffset, bufs[0])
 	if len(bufs) > 1 {
-		for i, b := range bufs {
-			tl.List[i] = NewTabFromBuffer(0, 1, w, h-1-iOffset, b)
+		for i, b := range bufs[1:] {
+			tl.List[i+1] = NewTabFromBuffer(0, 1, w, h-1-iOffset, b)
 		}
-	} else {
-		tl.List[0] = NewTabFromBuffer(0, 0, w, h-iOffset, bufs[0])
 	}
 	tl.TabWindow = display.NewTabWindow(w, 0)
 	tl.Names = make([]string, len(bufs))
@@ -251,6 +250,7 @@ func NewTabFromBuffer(x, y, width, height int, b *buffer.Buffer) *Tab {
 
 	e := NewBufPaneFromBuf(b, t)
 	e.SetID(t.ID())
+	e.Search(b.SearchText, false, true, false)
 
 	t.Panes = append(t.Panes, e)
 	return t
